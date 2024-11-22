@@ -2,7 +2,7 @@ package http
 
 import (
 	"context"
-	"go-template/config"
+	"dicio-scrapper/config"
 	"time"
 
 	"github.com/gofiber/contrib/fiberzerolog"

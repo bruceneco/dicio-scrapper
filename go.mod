@@ -1,4 +1,4 @@
-module go-template
+module dicio-scrapper
 
 go 1.23.2
 

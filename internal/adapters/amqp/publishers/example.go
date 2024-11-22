@@ -2,7 +2,7 @@ package publishers
 
 import (
 	"context"
-	"go-template/internal/adapters/amqp"
+	"dicio-scrapper/internal/adapters/amqp"
 
 	"github.com/rs/zerolog/log"
 	"github.com/wagslane/go-rabbitmq"

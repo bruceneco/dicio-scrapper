@@ -1,7 +1,7 @@
 package entities
 
 import (
-	"go-template/internal/adapters/db/entities/columns"
+	"dicio-scrapper/internal/adapters/db/entities/columns"
 )
 
 type Example struct {

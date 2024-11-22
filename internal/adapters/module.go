@@ -1,9 +1,9 @@
 package adapters
 
 import (
-	"go-template/internal/adapters/amqp"
-	"go-template/internal/adapters/db/postgres"
-	"go-template/internal/adapters/http"
+	"dicio-scrapper/internal/adapters/amqp"
+	"dicio-scrapper/internal/adapters/db/postgres"
+	"dicio-scrapper/internal/adapters/http"
 
 	"go.uber.org/fx"
 )
