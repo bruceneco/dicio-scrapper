@@ -14,7 +14,6 @@ type ExchangeType string
 
 const (
 	DefaultExchangeType ExchangeType = amqp091.ExchangeHeaders
-	ExchangeTypeHeaders
 )
 
 func (n *ExchangeName) String() string {
