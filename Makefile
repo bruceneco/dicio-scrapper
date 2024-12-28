@@ -34,3 +34,23 @@ new-migration:
 test:
 	go test ./...
 
+mock: mock-ports mock-domain
+
+MOCK_PORTS := \
+	wordports/queue \
+	wordports/scrapper
+
+mock-ports:
+	$(foreach file,$(MOCK_PORTS),\
+		mockgen -typed=true \
+		-source=./internal/ports/$(file).go \
+		-destination=./internal/ports/$(dir $(file))mock/$(notdir $(file)).go;)
+
+MOCK_DOMAIN := \
+	word/service
+
+mock-domain:
+	$(foreach file,$(MOCK_DOMAIN),\
+		mockgen -typed=true \
+		-source=./internal/domain/$(file).go \
+		-destination=./internal/domain/$(dir $(file))mock/$(notdir $(file)).go;)
