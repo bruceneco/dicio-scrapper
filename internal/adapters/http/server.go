@@ -17,7 +17,9 @@ func NewHTTPServer(cfg *config.EnvConfig, lc fx.Lifecycle) *fiber.App {
 		Immutable:   true,
 		ReadTimeout: time.Duration(maxReadDuration) * time.Second,
 	})
+
 	app.Use(fiberzerolog.New(fiberzerolog.Config{Logger: &log.Logger}))
+
 	lc.Append(fx.Hook{
 		OnStart: func(_ context.Context) error {
 			go func() {
@@ -32,5 +34,6 @@ func NewHTTPServer(cfg *config.EnvConfig, lc fx.Lifecycle) *fiber.App {
 			return app.ShutdownWithContext(ctx)
 		},
 	})
+
 	return app
 }
