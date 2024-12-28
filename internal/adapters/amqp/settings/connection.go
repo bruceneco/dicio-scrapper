@@ -1,4 +1,4 @@
-package amqp
+package settings
 
 import (
 	"context"
@@ -9,9 +9,23 @@ import (
 	"go.uber.org/fx"
 )
 
-type Connection struct {
-	conn *rabbitmq.Conn
-}
+type (
+	Connection struct {
+		conn *rabbitmq.Conn
+	}
+
+	ExchangeOpts struct {
+		Name ExchangeName
+		Kind ExchangeType
+	}
+
+	ConsumerOpts struct {
+		QueueName   string
+		Exclusive   bool
+		NoWait      bool
+		Concurrency int
+	}
+)
 
 func NewConnection(lc fx.Lifecycle, cfg *config.EnvConfig) *Connection {
 	conn, err := rabbitmq.NewConn(
@@ -21,6 +35,7 @@ func NewConnection(lc fx.Lifecycle, cfg *config.EnvConfig) *Connection {
 	if err != nil {
 		log.Fatal().Err(err).Msg("cannot initialize amqp connection")
 	}
+
 	lc.Append(fx.Hook{
 		OnStop: func(_ context.Context) error {
 			if conn == nil {
@@ -29,15 +44,11 @@ func NewConnection(lc fx.Lifecycle, cfg *config.EnvConfig) *Connection {
 			return conn.Close()
 		},
 	})
+
 	return &Connection{conn: conn}
 }
 
-type ExchangeOpts struct {
-	Name ExchangeName
-	Kind ExchangeType
-}
-
-func (c *Connection) MakePublisher(opts *ExchangeOpts) (*rabbitmq.Publisher, error) {
+func (c *Connection) MakePublisher(opts ExchangeOpts) (*rabbitmq.Publisher, error) {
 	p, err := rabbitmq.NewPublisher(
 		c.conn,
 		rabbitmq.WithPublisherOptionsLogger(NewLoggerAdapter(&log.Logger)),
@@ -49,31 +60,27 @@ func (c *Connection) MakePublisher(opts *ExchangeOpts) (*rabbitmq.Publisher, err
 	if err != nil {
 		return nil, err
 	}
+
 	p.NotifyReturn(func(r rabbitmq.Return) {
 		log.Info().Interface("content", r).Msg("message returned from exchange")
 	})
-	p.NotifyPublish(func(c rabbitmq.Confirmation) {
-		log.Info().Interface("confirmation", c).Msg("message confirmed")
-	})
+
 	return p, nil
 }
 
-type ConsumerOpts struct {
-	QueueName   string
-	Exclusive   bool
-	NoWait      bool
-	Concurrency int
-}
-
-func (c *Connection) MakeConsumer(name string, cOpts *ConsumerOpts, exOpts *ExchangeOpts) (*rabbitmq.Consumer, error) {
+func (c *Connection) MakeConsumer(name string, cOpts ConsumerOpts, exOpts ExchangeOpts) (*rabbitmq.Consumer, error) {
 	consumer, err := rabbitmq.NewConsumer(
 		c.conn,
 		name,
+		rabbitmq.WithConsumerOptionsQOSPrefetch(cOpts.Concurrency*PrefetchCount),
 		rabbitmq.WithConsumerOptionsLogger(NewLoggerAdapter(&log.Logger)),
 		rabbitmq.WithConsumerOptionsExchangeName(exOpts.Name.String()),
 		rabbitmq.WithConsumerOptionsExchangeDurable,
 		rabbitmq.WithConsumerOptionsExchangeDeclare,
+
 		rabbitmq.WithConsumerOptionsExchangeKind(exOpts.Kind.String()),
+		rabbitmq.WithConsumerOptionsConcurrency(cOpts.Concurrency),
+		rabbitmq.WithConsumerOptionsQueueQuorum,
 		func(options *rabbitmq.ConsumerOptions) {
 			options.QueueOptions = rabbitmq.QueueOptions{
 				Name:       cOpts.QueueName,
@@ -83,12 +90,13 @@ func (c *Connection) MakeConsumer(name string, cOpts *ConsumerOpts, exOpts *Exch
 				Passive:    false,
 				NoWait:     cOpts.NoWait,
 				Declare:    true,
+				Args: rabbitmq.Table{ // queue args
+					"delivery-limit": "3",
+				},
 			}
 			options.CloseGracefully = true
-			if cOpts.Concurrency != 0 {
-				options.Concurrency = cOpts.Concurrency
-			}
 		},
 	)
+
 	return consumer, err
 }

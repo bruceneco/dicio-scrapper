@@ -1,6 +1,8 @@
-package amqp
+package settings
 
 import "github.com/rabbitmq/amqp091-go"
+
+const PrefetchCount = 10
 
 type ExchangeName string
 

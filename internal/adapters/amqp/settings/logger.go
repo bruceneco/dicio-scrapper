@@ -1,4 +1,4 @@
-package amqp
+package settings
 
 import (
 	"github.com/rs/zerolog"
