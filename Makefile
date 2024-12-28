@@ -6,6 +6,7 @@ setup:
 	lefthook install
 	git config --local core.hooksPath .git/hooks
 	go install github.com/rubenv/sql-migrate/...@latest
+	go install go.uber.org/mock/mockgen@latest
 
 lint:
 	golangci-lint -c ./tools/.golangci.yml run --fix
