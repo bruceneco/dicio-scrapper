@@ -3,7 +3,6 @@ package publishers
 import (
 	"context"
 	"dicio-scrapper/internal/adapters/amqp/settings"
-	"dicio-scrapper/internal/ports/wordports"
 
 	"github.com/rs/zerolog/log"
 	"github.com/wagslane/go-rabbitmq"
@@ -14,7 +13,7 @@ type Word struct {
 	p *rabbitmq.Publisher
 }
 
-func NewWord(conn *settings.Connection, lc fx.Lifecycle) wordports.Publisher {
+func NewWord(conn *settings.Connection, lc fx.Lifecycle) *Word {
 	publisher, err := conn.MakePublisher(settings.ExchangeOpts{
 		Name: settings.DefaultExchangeName,
 		Kind: settings.DefaultExchangeType,

@@ -1,8 +1,15 @@
 package scrapper
 
-import "go.uber.org/fx"
+import (
+	"dicio-scrapper/internal/ports/wordports"
+
+	"go.uber.org/fx"
+)
 
 var Module = fx.Provide(
-	NewScrapper,
 	NewWord,
+	func(s *Word) wordports.Scrapper {
+		return s
+	},
+	NewScrapper,
 )
