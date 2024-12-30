@@ -12,10 +12,7 @@ import (
 var Module = fx.Options(
 	fx.Provide(
 		settings.NewConnection,
-		publishers.NewWord,
-		func(p *publishers.Word) wordports.Publisher {
-			return p
-		},
+		fx.Annotate(publishers.NewWord, fx.As(new(wordports.Publisher))),
 	),
 	fx.Invoke(
 		consumers.StartExtractWord,

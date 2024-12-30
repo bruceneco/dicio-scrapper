@@ -8,8 +8,6 @@ import (
 
 var Module = fx.Provide(
 	NewWord,
-	func(s *Word) wordports.Scrapper {
-		return s
-	},
+	fx.Annotate(NewWord, fx.As(new(wordports.Scrapper))),
 	NewScrapper,
 )
