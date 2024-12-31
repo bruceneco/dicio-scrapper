@@ -9,11 +9,10 @@ import (
 )
 
 type EnvConfig struct {
-	GoEnv         EnvType `env:"GO_ENV" envDefault:"development"`
-	PostgresDSN   string  `env:"POSTGRES_DSN,required"`
-	DBAutoMigrate bool    `env:"DB_AUTO_MIGRATE" envDefault:"false"`
-	AMQPHost      string  `env:"AMQP_HOST" envDefault:"amqp://guest:guest@localhost"`
-	HTTPPort      string  `env:"HTTP_PORT" envDefault:"3000"`
+	GoEnv    EnvType `env:"GO_ENV" envDefault:"development"`
+	MongoURI string  `env:"MONGO_URI,required"`
+	AMQPHost string  `env:"AMQP_HOST" envDefault:"amqp://guest:guest@localhost"`
+	HTTPPort string  `env:"HTTP_PORT" envDefault:"3000"`
 }
 
 func LoadEnv() *EnvConfig {
