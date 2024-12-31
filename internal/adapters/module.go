@@ -2,7 +2,7 @@ package adapters
 
 import (
 	"dicio-scrapper/internal/adapters/amqp"
-	"dicio-scrapper/internal/adapters/db/postgres"
+	"dicio-scrapper/internal/adapters/db"
 	"dicio-scrapper/internal/adapters/http"
 	"dicio-scrapper/internal/adapters/scrapper"
 
@@ -10,10 +10,8 @@ import (
 )
 
 var Module = fx.Options(
-	fx.Provide(
-		postgres.NewConnection,
-	),
 	http.Module,
 	amqp.Module,
 	scrapper.Module,
+	db.Module,
 )
