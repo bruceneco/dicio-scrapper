@@ -18,7 +18,7 @@ func NewWordController(service word.Servicer, app *fiber.App) {
 
 	group := app.Group("/word")
 	group.Get("/most-searched", c.MostSearched)
-	group.Get("/:content", c.GetByContent)
+	group.Get("", c.GetByContent)
 }
 
 func (w *Word) MostSearched(c *fiber.Ctx) error {
@@ -42,7 +42,8 @@ func (w *Word) MostSearched(c *fiber.Ctx) error {
 }
 
 func (w *Word) GetByContent(c *fiber.Ctx) error {
-	content := c.Params("content")
+	content := c.Query("content")
+	fmt.Println(content)
 	if content == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "content is empty",
