@@ -1,15 +1,4 @@
 services:
-  db:
-    image: postgres:15
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: guest
-      POSTGRES_DB: postgres
-    volumes:
-      - pg_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
   rabbitmq:
     image: rabbitmq:3-management
     ports:
@@ -21,6 +10,16 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
 
+  mongodb:
+    image: mongo:latest
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=dicio
+      - MONGO_INITDB_ROOT_PASSWORD=dicio
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
 volumes:
-  pg_data:
+  mongodb_data:
   rabbitmq_data:
