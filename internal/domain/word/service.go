@@ -2,6 +2,7 @@ package word
 
 import (
 	"context"
+	"dicio-scrapper/internal/domain/core"
 	"dicio-scrapper/internal/ports/wordports"
 	"errors"
 	"strings"
@@ -14,8 +15,9 @@ import (
 type (
 	Servicer interface {
 		EnqueueExtraction(ctx context.Context, word string) error
-		EnqueueMostSearched(ctx context.Context, page int) error
+		EnqueueMostSearched(ctx context.Context, page int) (int, error)
 		Extract(word string) error
+		GetWord(ctx context.Context, word string) (core.Word, error)
 	}
 
 	ServicerParams struct {
@@ -45,7 +47,7 @@ func (s *Service) EnqueueExtraction(ctx context.Context, word string) error {
 	return s.publisher.ExtractWord(ctx, word)
 }
 
-func (s *Service) EnqueueMostSearched(ctx context.Context, page int) error {
+func (s *Service) EnqueueMostSearched(ctx context.Context, page int) (int, error) {
 	words := s.scrapper.MostSearched(page)
 	log.Info().Int("words", len(words)).Int("page", page).Msg("enqueuing most searched words")
 
@@ -54,11 +56,11 @@ func (s *Service) EnqueueMostSearched(ctx context.Context, page int) error {
 		if err != nil {
 			log.Error().Str("word", word).Err(err).Msg("failed to enqueue word")
 
-			return err
+			return 0, err
 		}
 	}
 
-	return nil
+	return len(words), nil
 }
 
 func (s *Service) Extract(word string) error {
@@ -103,4 +105,12 @@ func (s *Service) checkDuplication(ctx context.Context, word string) error {
 	}
 
 	return wordports.ErrWordAlreadyExists
+}
+
+func (s *Service) GetWord(ctx context.Context, content string) (core.Word, error) {
+	err := s.Extract(content)
+	if err != nil && !errors.Is(err, wordports.ErrWordAlreadyExists) {
+		return core.Word{}, err
+	}
+	return s.repo.FindByContent(ctx, content)
 }
