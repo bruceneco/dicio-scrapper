@@ -2,8 +2,6 @@ package core
 
 import (
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type Meaning struct {
@@ -13,7 +11,7 @@ type Phrase struct {
 	Content, By string
 }
 type Word struct {
-	ID          uuid.UUID
+	ID          OID
 	Content     string
 	Meanings    []Meaning
 	Synonyms    []string
