@@ -7,5 +7,5 @@ import (
 )
 
 var Module = fx.Provide(
-	word.NewService,
+	fx.Annotate(word.NewService, fx.As(new(word.Servicer))),
 )
